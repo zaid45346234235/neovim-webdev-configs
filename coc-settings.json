@@ -1,3 +1,36 @@
 {
+  "suggest.enablePreview": true,
+  "languageserver": {},
+  "coc.source.css.enable": true,
+  "coc.source.css.filetypes": [
+    "css",
+    "scss",
+    "less"
+  ],
+  "coc.source.html.enable": true,
+  "coc.source.html.filetypes": [
+    "html",
+    "htm"
+  ],
+  "coc.source.tsserver.enable": true,
+  "tsserver.enable": true,
+  "tsserver.useWorkspaceTsdk": false,
+  "tsserver.rootPatterns": [
+    "package.json",
+    "tsconfig.json",
+    ".git"
+  ],
+  "typescript.suggest.autoImports": true,
+  "suggest.noselect": false,
+  "suggest.autoTrigger": "always",
+  "diagnostic.checkCurrentLine": true,
+  "javascript.validate.enable": false,
+  "suggest.enablePreselect": false,
+  "coc.source.tsserver.filetypes": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
   "snippets.ultisnips.pythonPrompt": false
 }
