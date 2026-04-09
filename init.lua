@@ -75,7 +75,7 @@ if not vim.loop.fs_stat(lazypath) then
 -- Mason
 require("mason").setup()
 require("mason-lspconfig").setup({
-  ensure_installed = { "ts_ls", "html", "cssls", "jsonls", "eslint", "tailwindcss-language-server"},
+  ensure_installed = { "ts_ls", "html", "cssls", "jsonls", "eslint", "tailwindcss"},
 })
 require("conform").setup({
   formatters_by_ft = {
