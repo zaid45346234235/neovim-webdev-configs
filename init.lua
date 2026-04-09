@@ -32,7 +32,6 @@ if not vim.loop.fs_stat(lazypath) then
     { "L3MON4D3/LuaSnip", dependencies = {"rafamadriz/friendly-snippets",}, config = function()
     require("luasnip.loaders.from_vscode").lazy_load()
   end, },
-    { "neoclide/coc.nvim", branch = "release"},
     { "rafamadriz/friendly-snippets" },
     { "saadparwaiz1/cmp_luasnip" }, 
     -- Colors themes 
@@ -70,6 +69,9 @@ if not vim.loop.fs_stat(lazypath) then
 
 
 
+
+
+
 -- Mason
 require("mason").setup()
 require("mason-lspconfig").setup({
@@ -83,71 +85,65 @@ require("conform").setup({
 })
 
 
-vim.g.coc_global_extensions = {
-  "coc-lua",
-  "coc-snippets",
-  "coc-html",
-  "coc-css",
-  "coc-eslint",
-  "coc-tsserver",
-  "coc-json",
-  "coc-tailwindcss",
-}
 
-local opts = { silent = true, noremap = true, expr = true }
-
--- <Tab> to select next completion or expand snippet
-vim.api.nvim_set_keymap("i", "<Tab>",
-  'coc#pum#visible() ? coc#pum#next(1) : coc#expandableOrJumpable() ? "\\<C-r>=coc#rpc#request(\'doKeymap\', [\'snippets-expand-jump\',\'\'])\\<CR>" : "\\<Tab>"',
-  opts)
-
--- <S-Tab> to select previous completion or jump backward in snippet
-vim.api.nvim_set_keymap("i", "<S-Tab>",
-  'coc#pum#visible() ? coc#pum#prev(1) : coc#jumpable(-1) ? "\\<C-r>=coc#rpc#request(\'doKeymap\', [\'snippets-jump-backward\',\'\'])\\<CR>" : "\\<S-Tab>"',
-  opts)
-
--- <CR> to confirm completion
-vim.api.nvim_set_keymap("i", "<CR>", "coc#pum#visible() ? coc#pum#confirm() : \"\\<C-g>u\\<CR>\\<c-r>=coc#on_enter()\\<CR>\"", {expr = true, silent = true}) 
- 
--- Trigger completion manually
-vim.api.nvim_set_keymap("i", "<C-Space>", 'coc#refresh()', opts)
 
 -- LSP (Neovim 0.11+ API)
--- local capabilities = require("cmp_nvim_lsp").default_capabilities()
--- 
--- capabilities.textDocument.completion.completionItem.snippetSupport = true
--- 
--- vim.lsp.config.ts_ls = { capabilities = capabilities }
--- vim.lsp.config.html = { capabilities = capabilities }
--- vim.lsp.config.cssls = { capabilities = capabilities }
--- vim.lsp.config.jsonls = { capabilities = capabilities }
--- vim.lsp.config.eslint = { capabilities = capabilities }
--- vim.lsp.config.tailwindcss = {capabilities = capabilities}
--- 
--- vim.lsp.enable("ts_ls")
--- vim.lsp.enable("html")
--- vim.lsp.enable("cssls")
--- vim.lsp.enable("jsonls")
--- vim.lsp.enable("eslint")
--- vim.lsp.enable("tailwindcss")
--- -- Autocompletion (cmp)
--- local cmp = require("cmp")
--- cmp.setup({
---   snippet = { expand = function(args) require("luasnip").lsp_expand(args.body) end },
---   mapping = cmp.mapping.preset.insert({
---     ["<Tab>"] = cmp.mapping.select_next_item(),
---     ["<S-Tab>"] = cmp.mapping.select_prev_item(),
---     ["<CR>"] = cmp.mapping.confirm({ select = true }),
---   }),
---   sources = { { name = "nvim_lsp" } },
--- })
--- 
--- 
---   --Lsp go-to-defintion
--- vim.keymap.set("n", "gd", vim.lsp.buf.definition)
--- vim.keymap.set("n", "gr", vim.lsp.buf.references)
--- vim.keymap.set("n", "K", vim.lsp.buf.hover)
--- vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+vim.lsp.config.ts_ls = { capabilities = capabilities }
+vim.lsp.config.html = { capabilities = capabilities }
+vim.lsp.config.cssls = { capabilities = capabilities }
+vim.lsp.config.jsonls = { capabilities = capabilities }
+vim.lsp.config.eslint = { capabilities = capabilities }
+vim.lsp.config.tailwindcss = {capabilities = capabilities}
+
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+
+vim.lsp.enable("ts_ls")
+vim.lsp.enable("html")
+vim.lsp.enable("cssls")
+vim.lsp.enable("jsonls")
+vim.lsp.enable("eslint")
+vim.lsp.enable("tailwindcss")
+-- Autocompletion (cmp)
+local cmp = require("cmp")
+cmp.setup({
+  snippet = { expand = function(args) require("luasnip").lsp_expand(args.body) end },
+  mapping = cmp.mapping.preset.insert({
+    ["<Tab>"] = cmp.mapping.select_next_item(),
+    ["<S-Tab>"] = cmp.mapping.select_prev_item(),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+  }),
+  sources = {
+    { name = "nvim_lsp" },
+    { name = "luasnip" },
+    { name = "buffer" },
+    { name = "path" },
+}})
+
+-- snippets/react.lua
+local ls = require("luasnip")
+local s = ls.snippet
+local t = ls.text_node
+
+ls.add_snippets("typescriptreact", {
+  s("spreadprops", t("{...props}")),
+})
+ls.add_snippets("javascriptreact", {
+  s("spreadprops", t("{...props}")),
+})
+ls.add_snippets("typescript", {
+  s("spreadprops", t("{...props}")),
+})
+ls.add_snippets("javascript", {
+  s("spreadprops", t("{...props}")),
+})
+  --Lsp go-to-defintion
+vim.keymap.set("n", "gd", vim.lsp.buf.definition)
+vim.keymap.set("n", "gr", vim.lsp.buf.references)
+vim.keymap.set("n", "K", vim.lsp.buf.hover)
+vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
   -- ========================
   -- Treesitter
   -- ========================
