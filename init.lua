@@ -29,6 +29,7 @@ if not vim.loop.fs_stat(lazypath) then
     { "williamboman/mason-lspconfig.nvim" },
     { "hrsh7th/nvim-cmp" },
     { "hrsh7th/cmp-nvim-lsp" },
+    { "hrsh7th/cmp-path" },
     { "L3MON4D3/LuaSnip", dependencies = {"rafamadriz/friendly-snippets",}, config = function()
     require("luasnip.loaders.from_vscode").lazy_load()
   end, },
@@ -37,16 +38,17 @@ if not vim.loop.fs_stat(lazypath) then
     -- Colors themes 
     { "Mofiqul/vscode.nvim"},
     -- Syntax highlighting
-    { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+   { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate"},
+   
     -- Discord rich presencs or "cord.nvim"
     {"vyfor/cord.nvim", bulid = ":Cord update"},
 
     -- autotag
-  --  { "windwp/nvim-autopairs" },
+    { "windwp/nvim-autopairs" },
     { "mattn/emmet-vim" },
-    { "windwp/nvim-ts-autotag"},
+    { "windwp/nvim-ts-autotag", dependencies = {"nvim-treesitter/nvim-treesitter"}},
     -- quick comment plugin
-    { "numToStr/Comment.nvim"},
+    { "numToStr/Comment.nvim", opts = {}},
     
     --multiselect function
     { "mg979/vim-visual-multi"},
@@ -74,8 +76,8 @@ if not vim.loop.fs_stat(lazypath) then
 
 -- Mason
 require("mason").setup()
-require("mason-lspconfig").setup({
-  ensure_installed = { "ts_ls", "html", "cssls", "jsonls", "eslint", "tailwindcss"},
+ require("mason-lspconfig").setup({ 
+  ensure_installed = { "ts_ls", "html", "cssls", "jsonls", "eslint", "tailwindcss", "vtsls"},
 })
 require("conform").setup({
   formatters_by_ft = {
@@ -90,17 +92,19 @@ require("conform").setup({
 -- LSP (Neovim 0.11+ API)
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-vim.lsp.config.ts_ls = { capabilities = capabilities }
+vim.lsp.config.ts_ls = { capabilities = capabilities , root_dir = vim.fs.root(0, { 'package.json', 'git'})
+,
+settings = 
+{implicitProjectConfiguration = {checkjs = true, checkts = true},},}
 vim.lsp.config.html = { capabilities = capabilities }
 vim.lsp.config.cssls = { capabilities = capabilities }
 vim.lsp.config.jsonls = { capabilities = capabilities }
 vim.lsp.config.eslint = { capabilities = capabilities }
 vim.lsp.config.tailwindcss = {capabilities = capabilities}
-
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 
-vim.lsp.enable("ts_ls")
+vim.lsp.enable("ts_ls") 
 vim.lsp.enable("html")
 vim.lsp.enable("cssls")
 vim.lsp.enable("jsonls")
@@ -122,6 +126,26 @@ cmp.setup({
     { name = "path" },
 }})
 
+
+require'cmp'.setup {
+    sources = cmp.config.sources({
+        { name = 'nvim_lsp' },
+        {
+        name = 'path',
+        option = {
+            pathMappings = {
+                ['@'] = '${folder}/src',
+                -- ['/'] = '${folder}/src/public/',
+                -- ['~@'] = '${folder}/src',
+                -- ['/images'] = '${folder}/src/images',
+                -- ['/components'] = '${folder}/src/components',
+            },
+        },
+        },
+        { name = 'buffer' },
+        { name = 'luasnip' },
+    }),
+}
 -- snippets/react.lua
 local ls = require("luasnip")
 local s = ls.snippet
@@ -145,6 +169,36 @@ vim.keymap.set("n", "gr", vim.lsp.buf.references)
 vim.keymap.set("n", "K", vim.lsp.buf.hover)
 vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
   -- ========================
+  -- autotags
+  -- ========================
+    
+  require('nvim-treesitter').install({"lua", "html", "css", "javascript", "typescript", "tsx", "jsdoc" }):wait(300000) -- wait max. 5 minutes 
+
+  require("nvim-autopairs").setup({
+    check_ts = true,
+    check_js = true
+  })
+
+ require('nvim-ts-autotag').setup({
+  opts = {
+    -- Defaults
+    enable_close = true, -- Auto close tags
+    enable_rename = true, -- Auto rename pairs of tags
+    enable_close_on_slash = false -- Auto close on trailing </
+  },
+  -- Also override individual filetype configs, these take priority.
+  -- Empty by default, useful if one of the "opts" global settings
+  -- doesn't work well in a specific filetype
+  per_filetype = {
+    ["html"] = {
+      enable_close = true
+    }
+
+  }
+})
+
+
+    -- ========================
   -- Treesitter
   -- ========================
   require("nvim-treesitter").setup({
@@ -166,15 +220,7 @@ vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
 
   vim.keymap.set("n", "<Leader>t",":NvimTreeToggle<CR>", {noremap = true , silent = true})
 
-  -- ========================
-  -- autotags
-  -- ========================
 
- --  require("nvim-autopairs").setup({
- --    check_ts = true
- --  })
- --  
-  require("nvim-ts-autotag").setup({})
   -- ========================
   -- Telescope
   -- ========================
@@ -241,6 +287,16 @@ require("formatter").setup({
         }
       end
     },
+    lua = {
+      function()
+        return {
+          exe = prettier, 
+          args = { "--stdin-filepath", vim.api.nvim_buf_get_name(0)},
+                            stdin = true,
+        }
+      end
+    },
+    
   }
 })
 
@@ -251,3 +307,6 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   callback = function() vim.cmd("Format") end,
 })
 
+
+-- auto comment
+  require('Comment').setup()
